@@ -10,7 +10,7 @@
 
     <div id="noiseSliderDiv">
         <span>ADD NOISE</span>
-        <input type='range' id="noiseSlider" min="0" max="10" value="0" step="1" onchange="updateNoise()" />
+        <input type='range' id="noiseSlider" min="0" max="10" value="0" step="1" onchange="updateNoise(this.value)" />
     </div>
 
     <div id="container">
@@ -18,7 +18,7 @@
     </div>
 
     <script>
-        //GLOBALS
+        //keep the overlays global as it needs to be accessed from the slider onchange
         var overlays;
 
         //make sure the noise slider is at 0
@@ -51,10 +51,9 @@
 
 
         /*  triggered by slider
-            re-creates the noise map overlay which will get the new noise level value */
-        function updateNoise() {
+            re-creates the noise map overlay with the new noise level */
+        function updateNoise(noiseLevel) {
             overlays.removeAt(0);
-            var noiseLevel = document.querySelector("#noiseSlider").value;
             overlays.insertAt(0, new NoiseMapType(new google.maps.Size(256, 256), noiseLevel))
         }
 
@@ -83,12 +82,15 @@
 
             map.mapTypes.set("MIX", new google.maps.ImageMapType({
                 getTileUrl: function(coord, zoom) {
+					 
                     //how many tiles at this zoom level
                     var scale = 1 << zoom;
+						  
                     //get the tile SW and NE points. We pass from tile coordinates to world coordinates
                     var wCoordSW = new google.maps.Point(coord.x * 256 / scale, (coord.y * 256 + 255) / scale),
                         wCoordNE = new google.maps.Point((coord.x * 256 + 255) / scale, coord.y * 256 / scale);
-                    //and translate from world coord to LatLng
+                    
+						  //and translate from world coord to LatLng
                     var latLngSW = map.getProjection().fromPointToLatLng(wCoordSW),
                         latLngNE = map.getProjection().fromPointToLatLng(wCoordNE);
 
